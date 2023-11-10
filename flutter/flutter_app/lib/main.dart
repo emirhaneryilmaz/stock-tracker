@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Expanded(
-            flex: 6, // Alt kısmın %60'ını kaplamak için
+            flex: 6, // Alt kısmın %60'ını kaplamak için bu satırı yazdık.
             child: Container(
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
