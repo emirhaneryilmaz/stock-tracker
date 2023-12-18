@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447049274163",
+    "project_id": "stock-tracker-baris-emirhan",
+    "storage_bucket": "stock-tracker-baris-emirhan.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447049274163:android:545b52892c691195bf2446",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtXUNJXvoIEzqnkh8LJmHmIyhcaQ3UzH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
