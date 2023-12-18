@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/MainScreen.dart';
 import 'package:http/http.dart' as http;
 
 import 'HomePage.dart';
+import 'MainScreen.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -108,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
         // Yeni sayfaya yönlendirme
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage(token)),
+          MaterialPageRoute(builder: (context) => MainScreen(token)),
         );
       } else {
         // Başarısız giriş durumu

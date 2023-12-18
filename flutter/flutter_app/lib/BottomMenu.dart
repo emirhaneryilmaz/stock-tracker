@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'HomePage.dart';
+import 'ListsPage.dart';
+import 'NewsPage.dart';
+import 'PortfolioPage.dart';
 
 class BottomMenu extends StatelessWidget {
   @override
@@ -14,13 +18,13 @@ class BottomMenu extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Ana Sayfa',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance_wallet),
-          label: 'Portföyüm',
-        ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.account_balance_wallet),
+        //   label: 'Portföyüm',
+        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.list),
-          label: 'Listelerim',
+          label: 'My Lists',
         ),
       ],
       selectedItemColor: Colors.black,
@@ -32,19 +36,22 @@ class BottomMenu extends StatelessWidget {
   }
 
   void _handleBottomNav(BuildContext context, int index) {
+    String routeName = '';
+
     switch (index) {
       case 0:
-        print('Haberler');
+        routeName = '/news';
         break;
       case 1:
-        print('Ana Sayfa');
+        routeName = '/home';
         break;
       case 2:
-        print('Portföyüm');
+        routeName = '/lists';
         break;
-      case 3:
-        print('Listelerim');
-        break;
+    }
+
+    if (routeName != null) {
+      Navigator.pushNamed(context, routeName);
     }
   }
 }
