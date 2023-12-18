@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'LoginPage.dart';
 import 'ListsPage.dart';
 import 'NewsPage.dart';
 import 'HomePage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    // Replace with actual values
+    options: FirebaseOptions(
+      apiKey: "AIzaSyCtXUNJXvoIEzqnkh8LJmHmIyhcaQ3UzH4",
+      appId: "1:447049274163:android:545b52892c691195bf2446",
+      messagingSenderId: "447049274163",
+      projectId: "stock-tracker-baris-emirhan",
+    ),
+  );
   runApp(MyApp());
 }
 
@@ -15,9 +27,9 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/home':
-            final token = settings.arguments as String? ?? 'default_token';
+            // final token = settings.arguments as String? ?? 'default_token';
             return MaterialPageRoute(
-              builder: (context) => HomePage(token),
+              builder: (context) => HomePage(),
             );
           // Burada diğer rotaları da ekleyebilirsiniz
           default:

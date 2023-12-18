@@ -1,9 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/MainScreen.dart';
-import 'package:http/http.dart' as http;
-
-import 'HomePage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'MainScreen.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,8 +8,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   TextField(
-                    controller: _usernameController,
+                    controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Username',
                     ),
@@ -74,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
-                      _login(context);
+                      _login();
                     },
                     child: Text('Login'),
                   ),
@@ -87,37 +83,23 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _login(BuildContext context) async {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
-
+  Future<void> _login() async {
     try {
-      var response = await http.post(
-        Uri.parse('http://localhost:8080/authenticate'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-        }),
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-
-      if (response.statusCode == 200) {
-        // Başarılı giriş durumu
-        var token = jsonDecode(response.body)['jwt'];
-        print('Login successful! Token: $token');
-
-
-        // Yeni sayfaya yönlendirme
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen(token)),
-        );
-      } else {
-        // Başarısız giriş durumu
-        _showInvalidCredentialsAlert(context);
-      }
-    } catch (error) {
-      print('Giriş hatası: $error');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Firebase Authentication hataları
+      print('Firebase login error: $e');
+      _showInvalidCredentialsAlert(context);
+    } catch (e) {
+      // Diğer hataları yönetin
+      print('General login error: $e');
       _showInvalidCredentialsAlert(context);
     }
   }

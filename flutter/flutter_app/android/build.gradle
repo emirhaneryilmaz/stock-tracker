@@ -14,7 +14,7 @@ buildscript {
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
-    id 'com.google.firebase.firebase-plugins' // ?????
+    id 'com.google.firebase:firebase-auth' 
 }
 
 dependencies{

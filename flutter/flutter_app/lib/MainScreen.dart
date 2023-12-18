@@ -4,9 +4,9 @@ import 'NewsPage.dart';
 import 'ListsPage.dart';
 
 class MainScreen extends StatefulWidget {
-  final String token;
+  // final String token;
 
-  MainScreen(this.token);
+  // MainScreen(this.token);
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> get _pages {
     return [
-      HomePage(widget.token), // Token'ı HomePage'e ilet
+      HomePage(), // Token'ı HomePage'e ilet
       NewsPage(),             // NewsPage için token gerekiyorsa ekleyin
       ListsPage(),            // ListsPage için token gerekiyorsa ekleyin
       // Diğer sayfalarınız...

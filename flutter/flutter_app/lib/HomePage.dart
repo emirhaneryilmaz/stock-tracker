@@ -4,10 +4,10 @@ import 'LoginPage.dart';
 import 'BottomMenu.dart';
 
 class HomePage extends StatelessWidget {
-  final String token;
+  // final String token;
 
-  // Constructor ile token parametresini alıyoruz
-  HomePage(this.token);
+  // // Constructor ile token parametresini alıyoruz
+  // HomePage(this.token);
 
   @override
   Widget build(BuildContext context) {
