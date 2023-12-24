@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/SettingsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
-import 'BottomMenu.dart';
 
 class HomePage extends StatelessWidget {
   // final String token;
@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
             ),
           IconButton(
             onPressed: () {
-              _handleSettings();
+              _handleSettings(context);
             },
             icon: Icon(Icons.settings),
             color: Colors.black,
@@ -57,14 +57,6 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Color(0xFF93B1A6),
                 borderRadius: BorderRadius.circular(20.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    offset: Offset(0, 4),
-                    blurRadius: 4,
-                    spreadRadius: 0,
-                  ),
-                ],
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -114,14 +106,6 @@ class HomePage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Color(0xFFD9D9D9),
                     borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        offset: Offset(0, 4),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
                   ),
                   child: ListTile(
                     title: InkWell(
@@ -175,8 +159,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _handleSettings() {
-    print('Settings');
+  void _handleSettings(BuildContext context) {
+    Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsPage()),);
   }
 
   void _handleDarkMode() {

@@ -1,22 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'MainScreen.dart';
-import 'SignupPage.dart';
 
-class LoginPage extends StatefulWidget {
+class SignupPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignupPageState createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _register() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // User successfully registered, now navigate to the main page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
+
+      print("User registered: ${userCredential.user!.uid}");
+      // Optionally: Do something else after successful registration
+    } on FirebaseAuthException catch (e) {
+      print("Error: $e");
+    } catch (e) {
+      print("General error: $e");
+      // Optionally: Handle other errors
+      _showRegistrationErrorAlert(context, 'An error occurred during registration.');
+    }
+  }
+
+  void _showRegistrationErrorAlert(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Registration Error'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login Page'),
+        title: Text('Sign up Page'),
       ),
       body: Column(
         children: [
@@ -47,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Login or sign up',
+                    'Sign up',
                     style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
@@ -71,17 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () {
-                      _login();
-                    },
-                    child: Text('Login'),
-                  ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                       Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
-                      );
+                      _register();
                     },
                     child: Text('Sign up'),
                   ),
@@ -91,49 +125,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Future<void> _login() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      // Firebase Authentication hataları
-      print('Firebase login error: $e');
-      _showInvalidCredentialsAlert(context);
-    } catch (e) {
-      // Diğer hataları yönetin
-      print('General login error: $e');
-      _showInvalidCredentialsAlert(context);
-    }
-  }
-
-  void _showInvalidCredentialsAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Invalid Credentials'),
-          content: Text(
-            'The username or password you entered is incorrect. Please try again.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'HomePage.dart';
 import 'ListsPage.dart';
 import 'NewsPage.dart';
 import 'PortfolioPage.dart';
+import 'SettingsPage.dart';
 
 class BottomMenu extends StatelessWidget {
   @override
@@ -18,10 +19,6 @@ class BottomMenu extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Ana Sayfa',
         ),
-        // BottomNavigationBarItem(
-        //   icon: Icon(Icons.account_balance_wallet),
-        //   label: 'Portföyüm',
-        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.list),
           label: 'My Lists',
@@ -47,7 +44,7 @@ class BottomMenu extends StatelessWidget {
         break;
       case 2:
         routeName = '/lists';
-        break;
+        break;    
     }
 
     if (routeName != null) {

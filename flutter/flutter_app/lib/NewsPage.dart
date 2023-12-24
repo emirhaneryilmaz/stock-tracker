@@ -16,7 +16,6 @@ class NewsPage extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0), // Yuvarlak köşeler
               ),
-              elevation: 4.0, // Gölge efekti
               child: Row(
                 children: [
                   // Sol tarafta yuvarlak köşeli resim

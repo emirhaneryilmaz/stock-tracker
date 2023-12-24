@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'HomePage.dart';
 import 'NewsPage.dart';
 import 'ListsPage.dart';
+import 'SettingsPage.dart';
 
 class MainScreen extends StatefulWidget {
   // final String token;
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
       HomePage(), // Token'ı HomePage'e ilet
       NewsPage(),             // NewsPage için token gerekiyorsa ekleyin
       ListsPage(),            // ListsPage için token gerekiyorsa ekleyin
+      SettingsPage(),
       // Diğer sayfalarınız...
     ];
   }
