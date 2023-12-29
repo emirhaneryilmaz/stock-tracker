@@ -1,25 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/LoginPage.dart';
-import 'package:flutter_app/listContentPage.dart'; 
 import 'package:flutter_app/SettingsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(ListsPage ());
-}
+class ListContentPage extends StatelessWidget {
+  final String listItemTitle;
 
-class ListsPage extends StatelessWidget {
+  ListContentPage({required this.listItemTitle});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+     appBar: AppBar(
         elevation: 0,
-        //leading: IconButton(
-        //  icon: Icon(Icons.arrow_back, color: Colors.black),
-        //  onPressed: () => Navigator.of(context).pop(),
-        //),
         title: Text(
-          'Lists',
+          listItemTitle,
           style: TextStyle(
             color: Colors.black,
           ),
@@ -49,26 +44,13 @@ class ListsPage extends StatelessWidget {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: ListView.builder(
-        itemCount: 10, // Örnek olarak 10 elemanlı liste
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Icon(Icons.list), // Her liste öğesinin başında bir ikon
-            title: Text('Liste Öğesi $index'),
-            subtitle: Text('Detaylar burada gösterilecek'),
-            trailing: Icon(Icons.arrow_forward_ios), // Sağ tarafta bir ikon
-            onTap: () {
-              _handleListItemTap(context, index);
-
-              print('Liste Öğesi $index tıklandı');
-            },
-          );
-        },
+      body: Center(
+        child: Text('Detaylar burada gösterilecek'),
       ),
     );
   }
-
-   void _handleSettings(BuildContext context) {
+}
+ void _handleSettings(BuildContext context) {
     Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => SettingsPage()),);
@@ -82,21 +64,9 @@ class ListsPage extends StatelessWidget {
     print('$assetName tıklandı');
   }
 
-  void _handleLikeButton() {
-    print('Beğen');
-  }
-  void _handleListItemTap(BuildContext context, int index) {
-    // ListContentPage'e yönlendirme yap
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ListContentPage(
-          listItemTitle: 'Liste Öğesi $index',
-        ),
-      ),
-    );
-  }
-
+  // void _handleLikeButton() {
+  //  print('Beğen');
+  //}
   void _handleLogout(BuildContext context) async {
     // Logout işlevi
 
@@ -113,8 +83,4 @@ class ListsPage extends StatelessWidget {
       (route) => false,
     );
   }
-
-}
-
-
 

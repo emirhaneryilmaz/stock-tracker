@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
 
 class HomePage extends StatelessWidget {
+  final GlobalKey _buttonKey = GlobalKey();
   // final String token;
 
   // // Constructor ile token parametresini alıyoruz
@@ -99,6 +100,7 @@ class HomePage extends StatelessWidget {
               itemCount: 5,
               itemBuilder: (context, index) {
                 List<String> assetNames = ['Altın', 'EUR', 'USD', 'BIST100', 'BIST30'];
+                GlobalKey _buttonKey = GlobalKey();
 
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -140,8 +142,9 @@ class HomePage extends StatelessWidget {
                             icon: Icon(Icons.arrow_forward),
                           ),
                           IconButton(
+                            key: _buttonKey,
                             onPressed: () {
-                              _handleLikeButton();
+                              _handleLikeButton(context, _buttonKey);
                             },
                             icon: Icon(Icons.thumb_up),
                           ),
@@ -173,8 +176,41 @@ class HomePage extends StatelessWidget {
     print('$assetName tıklandı');
   }
 
-  void _handleLikeButton() {
+   void _handleLikeButton(BuildContext context, GlobalKey key) {
     print('Beğen');
+
+    // IconButton'un pozisyonunu bul
+    RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
+
+    if (renderBox != null) {
+      var offset = renderBox.localToGlobal(Offset.zero);
+
+      // PopupMenuButton kullanarak bir menü oluştur
+      showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
+        items: [
+          PopupMenuItem(
+            child: Text('Öğe 1'),
+            value: 1,
+          ),
+          PopupMenuItem(
+            child: Text('Öğe 2'),
+            value: 2,
+          ),
+          PopupMenuItem(
+            child: Text('Öğe 3'),
+            value: 3,
+          ),
+        ],
+        elevation: 8.0,
+      ).then((value) {
+        // Menü öğesi seçildiğinde yapılacak işlemleri burada ekleyebilirsiniz.
+        if (value != null) {
+          print('Seçilen öğe: $value');
+        }
+      });
+    }
   }
 
   void _handleLogout(BuildContext context) async {
