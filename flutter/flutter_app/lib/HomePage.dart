@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
 
 class HomePage extends StatelessWidget {
-  final GlobalKey _buttonKey = GlobalKey();
   // final String token;
 
   // // Constructor ile token parametresini alıyoruz
@@ -212,6 +211,7 @@ class HomePage extends StatelessWidget {
       });
     }
   }
+  
 
   void _handleLogout(BuildContext context) async {
     // Logout işlevi
