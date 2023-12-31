@@ -109,8 +109,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Follow Lists',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.person_2_outlined),
+            label: 'Profile',
           ),
           // Diğer menü öğeleri...
         ],
