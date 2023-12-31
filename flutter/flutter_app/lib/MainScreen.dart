@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     'Welcome to Stock Tracker!',
     'News',
     'Follow Lists',
-    'Settings',
+    'Profile',
     // Diğer sayfa başlıklarınız...
   ];
 
@@ -37,12 +37,12 @@ class _MainScreenState extends State<MainScreen> {
     print('Dark Mode toggled');
   }
 
-  void _handleSettings(BuildContext context) {
-    // SettingsPage'e geçiş yap
-    setState(() {
-      _selectedIndex = 3; // SettingsPage'in indexi
-    });
-  }
+  // void _handleSettings(BuildContext context) {
+  //   // SettingsPage'e geçiş yap
+  //   setState(() {
+  //     _selectedIndex = 3; // SettingsPage'in indexi
+  //   });
+  // }
 
    void _handleLogout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,11 +70,11 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.nightlight_round),
             color: Colors.black,
           ),
-          IconButton(
-            onPressed: () => _handleSettings(context),
-            icon: Icon(Icons.settings),
-            color: Colors.black,
-          ),
+          // IconButton(
+          //   onPressed: () => _handleSettings(context),
+          //   icon: Icon(Icons.settings),
+          //   color: Colors.black,
+          // ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () => _handleLogout(context),
