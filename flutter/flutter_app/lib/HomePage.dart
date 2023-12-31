@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
 
 class HomePage extends StatelessWidget {
+  // final _userIdController = TextEditingController();
   // final String token;
 
   // // Constructor ile token parametresini alıyoruz
@@ -172,7 +173,7 @@ class HomePage extends StatelessWidget {
   }
 
   void _handleAssetTap(String assetName) {
-    print('$assetName tıklandı');
+    print('$assetName tiklandi');
   }
 
    void _handleLikeButton(BuildContext context, GlobalKey key) {
@@ -181,6 +182,7 @@ class HomePage extends StatelessWidget {
     // IconButton'un pozisyonunu bul
     RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
 
+    // ignore: unnecessary_null_comparison
     if (renderBox != null) {
       var offset = renderBox.localToGlobal(Offset.zero);
 

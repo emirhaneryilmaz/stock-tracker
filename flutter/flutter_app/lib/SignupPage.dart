@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'MainScreen.dart';
 
 class SignupPage extends StatefulWidget {
@@ -19,7 +20,10 @@ class _SignupPageState extends State<SignupPage> {
         password: _passwordController.text,
       );
 
-      // User successfully registered, now navigate to the main page
+      // User successfully registered, now add user info to Firestore
+      await _addUserToFirestore(userCredential.user!.uid);
+
+      // Navigate to the main page
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),
@@ -29,10 +33,29 @@ class _SignupPageState extends State<SignupPage> {
       // Optionally: Do something else after successful registration
     } on FirebaseAuthException catch (e) {
       print("Error: $e");
+      _showRegistrationErrorAlert(context, e.message ?? 'An error occurred during registration.');
     } catch (e) {
       print("General error: $e");
       // Optionally: Handle other errors
       _showRegistrationErrorAlert(context, 'An error occurred during registration.');
+    }
+  }
+
+  Future<void> _addUserToFirestore(String userId) async {
+    try {
+      // Firestore'da 'users' koleksiyonuna kullanıcı belgesi eklenir
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'portfolyo': {
+          'title': 'Portföy', // Default olarak eklenen liste
+          // Diğer alanları eklemek isterseniz buraya ekleyebilirsiniz.
+        },
+        // Diğer kullanıcı özel bilgilerini eklemek isterseniz buraya ekleyebilirsiniz.
+      });
+
+      print('User added to Firestore: $userId');
+    } catch (e) {
+      print('Firestore error: $e');
+      // Handle Firestore errors here
     }
   }
 

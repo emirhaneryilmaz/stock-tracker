@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/SettingsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginPage.dart';
 

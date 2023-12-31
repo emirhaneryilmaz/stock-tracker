@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'HomePage.dart';
-import 'ListsPage.dart';
-import 'NewsPage.dart';
-import 'PortfolioPage.dart';
-import 'SettingsPage.dart';
 
 class BottomMenu extends StatelessWidget {
   @override
