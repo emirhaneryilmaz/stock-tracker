@@ -69,14 +69,20 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: 16.0),
-                  ElevatedButton(
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
                     onPressed: () {
                       _login();
                     },
                     child: Text('Login'),
                   ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
+                  ),
+                  
+                  SizedBox(height: 16.0,),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
                     onPressed: () {
                        Navigator.push(
                         context,
@@ -85,6 +91,9 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text('Sign up'),
                   ),
+),
+                  
+                
                 ],
               ),
             ),
