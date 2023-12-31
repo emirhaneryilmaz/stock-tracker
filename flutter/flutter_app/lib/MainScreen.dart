@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'HomePage.dart';
 import 'NewsPage.dart';
 import 'ListsPage.dart';
@@ -42,9 +44,15 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _handleLogout(BuildContext context) {
-    // Logout işlemleri
-    print('Logged out');
+   void _handleLogout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('jwt');
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false,
+    );
   }
 
   @override
@@ -99,10 +107,6 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Follow Lists',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
           ),
           // Diğer menü öğeleri...
         ],

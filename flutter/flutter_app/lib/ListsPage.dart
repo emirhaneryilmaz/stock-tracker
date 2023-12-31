@@ -62,39 +62,6 @@ class _ListsPageState extends State<ListsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Text(
-          'Lists',
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              _handleDarkMode();
-            },
-            icon: Icon(Icons.nightlight_round),
-            color: Colors.black,
-          ),
-          IconButton(
-            onPressed: () {
-              _handleSettings(context);
-            },
-            icon: Icon(Icons.settings),
-            color: Colors.black,
-          ),
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              _handleLogout(context);
-            },
-          ),
-        ],
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
