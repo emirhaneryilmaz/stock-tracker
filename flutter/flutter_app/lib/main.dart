@@ -4,6 +4,7 @@ import 'LoginPage.dart';
 import 'ListsPage.dart';
 import 'NewsPage.dart';
 import 'HomePage.dart';
+import 'SettingsPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/news': (context) => NewsPage(), // Haberler sayfası
         '/lists': (context) => ListsPage(), // Listelerim
+        '/settings' :(context) => SettingsPage(),
       },
       debugShowCheckedModeBanner: false,
     );

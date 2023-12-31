@@ -5,10 +5,6 @@ import 'ListsPage.dart';
 import 'SettingsPage.dart';
 
 class MainScreen extends StatefulWidget {
-  // final String token;
-
-  // MainScreen(this.token);
-
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -16,19 +12,69 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+  // Her sayfanın adını tutan bir liste
+  final List<String> _pageTitles = [
+    'Welcome to Stock Tracker!',
+    'News',
+    'Follow Lists',
+    'Settings',
+    // Diğer sayfa başlıklarınız...
+  ];
+
   List<Widget> get _pages {
     return [
-      HomePage(), // Token'ı HomePage'e ilet
-      NewsPage(),             // NewsPage için token gerekiyorsa ekleyin
-      ListsPage(),            // ListsPage için token gerekiyorsa ekleyin
+      HomePage(),
+      NewsPage(),
+      ListsPage(),
       SettingsPage(),
       // Diğer sayfalarınız...
     ];
   }
 
+  void _handleDarkMode() {
+    print('Dark Mode toggled');
+  }
+
+  void _handleSettings(BuildContext context) {
+    // SettingsPage'e geçiş yap
+    setState(() {
+      _selectedIndex = 3; // SettingsPage'in indexi
+    });
+  }
+
+  void _handleLogout(BuildContext context) {
+    // Logout işlemleri
+    print('Logged out');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(
+          _pageTitles[_selectedIndex],
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _handleDarkMode(),
+            icon: Icon(Icons.nightlight_round),
+            color: Colors.black,
+          ),
+          IconButton(
+            onPressed: () => _handleSettings(context),
+            icon: Icon(Icons.settings),
+            color: Colors.black,
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _handleLogout(context),
+          ),
+        ],
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
@@ -53,6 +99,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Follow Lists',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
           // Diğer menü öğeleri...
         ],

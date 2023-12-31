@@ -67,6 +67,8 @@ class SettingsPage extends StatelessWidget {
       // bottomNavigationBar: BottomMenu(),
     );
   }
+
+  
     void _handleLogout(BuildContext context) async {
     // Logout işlevi
 
@@ -92,6 +94,10 @@ class SettingsPage extends StatelessWidget {
   void _handleDarkMode() {
     print('Dark Mode');
   }
+
+
+
+
 }
 
   
