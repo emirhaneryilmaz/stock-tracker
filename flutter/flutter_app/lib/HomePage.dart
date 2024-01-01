@@ -1,14 +1,31 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_app/SettingsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_app/SettingsPage.dart';
+import 'package:flutter/material.dart';
 import 'LoginPage.dart';
+import 'dart:async';
 
 class HomePage extends StatelessWidget {
-  // final _userIdController = TextEditingController();
-  // final String token;
+   final String _userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+   Future<List<Map<String, dynamic>>> _fetchUserListsFromFirestore() async {
+    List<Map<String, dynamic>> userLists = [];
 
-  // // Constructor ile token parametresini alıyoruz
-  // HomePage(this.token);
+    try {
+      DocumentSnapshot userSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(_userId).get();
+
+      List<dynamic>? listsArray = userSnapshot['portfolyo'] as List<dynamic>?;
+
+      if (listsArray != null) {
+        userLists = List<Map<String, dynamic>>.from(listsArray);
+      }
+    } catch (e) {
+      print('Firestore veri çekme hatası: $e');
+    }
+
+    return userLists;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +128,7 @@ class HomePage extends StatelessWidget {
                           IconButton(
                             key: _buttonKey,
                             onPressed: () {
-                              _handleLikeButton(context, _buttonKey);
+                              _handleLikeButton(context, _buttonKey, assetNames[index]);
                             },
                             icon: Icon(Icons.thumb_up),
                           ),
@@ -143,44 +160,72 @@ class HomePage extends StatelessWidget {
     print('$assetName tiklandi');
   }
 
-   void _handleLikeButton(BuildContext context, GlobalKey key) {
-    print('Beğen');
+ void _handleLikeButton(BuildContext context, GlobalKey key, String selectedProduct) async {
+  RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
 
-    // IconButton'un pozisyonunu bul
-    RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
+  if (renderBox != null) {
+    var offset = renderBox.localToGlobal(Offset.zero);
 
-    // ignore: unnecessary_null_comparison
-    if (renderBox != null) {
-      var offset = renderBox.localToGlobal(Offset.zero);
+    List<Map<String, dynamic>> userLists = await _fetchUserListsFromFirestore();
 
-      // PopupMenuButton kullanarak bir menü oluştur
-      showMenu(
-        context: context,
-        position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
-        items: [
-          PopupMenuItem(
-            child: Text('Öğe 1'),
-            value: 1,
-          ),
-          PopupMenuItem(
-            child: Text('Öğe 2'),
-            value: 2,
-          ),
-          PopupMenuItem(
-            child: Text('Öğe 3'),
-            value: 3,
-          ),
-        ],
-        elevation: 8.0,
-      ).then((value) {
-        // Menü öğesi seçildiğinde yapılacak işlemleri burada ekleyebilirsiniz.
-        if (value != null) {
-          print('Seçilen öğe: $value');
-        }
-      });
-    }
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
+      items: userLists.map((list) {
+        return PopupMenuItem(
+          child: Text(list['list_name']),
+          value: list['list_name'],
+        );
+      }).toList(),
+      elevation: 8.0,
+    ).then((value) {
+  if (value != null) {
+    // Seçilen liste: $value, Seçilen ürün: $selectedProduct
+    String selectedList = value.toString();
+
+    // Seçilen ürünü seçilen listeye ekleyin
+    _addProductToList(selectedProduct, selectedList);
   }
-  
+});
+  }
+}
+
+Future<void> _addProductToList(String selectedProduct, String listName) async {
+  try {
+    // Firestore'dan kullanıcının verilerini çek
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(_userId).get();
+
+    // Kullanıcının portföy verisini al
+    List<dynamic>? userLists = userSnapshot['portfolyo'] as List<dynamic>?;
+
+    if (userLists != null) {
+      // Seçilen liste ismine ait olan listeyi bul
+      Map<String, dynamic>? selectedList = userLists.firstWhere(
+        (list) => list['list_name'] == listName,
+        orElse: () => null,
+      );
+
+      if (selectedList != null) {
+        // Listeyi güncelle ve yeni ürünü ekle
+        List<dynamic> listContent = selectedList['list_content'] as List<dynamic>;
+        listContent.add(selectedProduct);
+
+        // Firestore'a güncellenmiş veriyi kaydet
+        await FirebaseFirestore.instance.collection('users').doc(_userId).update({
+          'portfolyo': userLists,
+        });
+
+        print('Ürün başarıyla eklendi: $selectedProduct');
+      } else {
+        print('Hata: Belirtilen liste bulunamadı');
+      }
+    } else {
+      print('Hata: Kullanıcının portföyü bulunamadı');
+    }
+  } catch (e) {
+    print('Ürün eklenirken bir hata oluştu: $e');
+  }
+}
 
   void _handleLogout(BuildContext context) async {
     // Logout işlevi
