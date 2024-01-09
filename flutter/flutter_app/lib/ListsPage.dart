@@ -70,7 +70,6 @@ class _ListsPageState extends State<ListsPage> {
                 return ListTile(
                   leading: Icon(Icons.list),
                   title: Text(userLists[index]['list_name']),
-                  subtitle: Text('Detaylar burada gösterilecek'),
                   trailing: Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     _handleListItemTap(context, index);
@@ -128,13 +127,13 @@ class _ListsPageState extends State<ListsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Yeni Liste Oluştur'),
+          title: Text('Create new list.'),
           content: TextField(
             onChanged: (value) {
               newListTitle = value;
             },
             decoration: InputDecoration(
-              hintText: 'Liste Başlığı Girin',
+              hintText: 'Enter List Title',
             ),
           ),
           actions: [
@@ -142,14 +141,14 @@ class _ListsPageState extends State<ListsPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('İptal'),
+              child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 _createNewList(newListTitle);
                 Navigator.pop(context);
               },
-              child: Text('Oluştur'),
+              child: Text('Create'),
             ),
           ],
         );

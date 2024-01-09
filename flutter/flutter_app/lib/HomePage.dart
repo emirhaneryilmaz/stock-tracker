@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Varlıklarınız',
+                      'Your Assets',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
             child: Text(
-              'Popüler Ürünler',
+              'Populer Assets',
               style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Text(assetName),
                               Text(
-                                  'Fiyat: \$${assetPrice}'), // Display the actual price
+                                  'Price: \$${assetPrice}'), // Display the actual price
                             ],
                           ),
                           SizedBox(width: 16.0),

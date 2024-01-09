@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'dart:io';
+import 'dart:html' as html;
+
 
 void main() {
   runApp(MyApp());
@@ -28,13 +29,15 @@ class _SettingsPageState extends State<SettingsPage> {
     // Firebase Storage referansını alın
     firebase_storage.Reference reference = firebase_storage.FirebaseStorage.instance.ref('gs://stock-tracker-baris-emirhan.appspot.com/Crypto_Investment_Risk_Disclosure_Form_StockTracker.pdf');
 
-    // Yerel depolama için bir File objesi oluşturun
-    File localFile = File("local_path/Crypto_Investment_Risk_Disclosure_Form_StockTracker.pdf");
+    // Dosyanın URL'sini alın
+    String downloadURL = await reference.getDownloadURL();
 
-    // Dosyayı indirin ve File objesine yazın
-    await reference.writeToFile(localFile);
+    // URL'yi kullanarak dosyayı indirin
+    html.AnchorElement(href: downloadURL)
+      ..target = 'a_target_name' // İstediğiniz bir hedef adı verin
+      ..click();
 
-    print("PDF dosyası indirildi ve yerel path'i: ${localFile.path}");
+    print("PDF dosyası indirildi");
   } catch (error) {
     print("PDF indirme sırasında bir hata oluştu: $error");
   }
@@ -117,7 +120,7 @@ class _SettingsPageState extends State<SettingsPage> {
         },
       );
     } catch (error) {
-      print("Şifre değiştirme sırasında bir hata oluştu: $error");
+      print("An error occurred while changing the password: $error");
     }
   }
   
@@ -273,7 +276,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Row(
                     children: [
                       Text(
-                        'Varlıklarım',
+                        'My Assets',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
