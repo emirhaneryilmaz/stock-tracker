@@ -70,7 +70,16 @@ class _ListsPageState extends State<ListsPage> {
                 return ListTile(
                   leading: Icon(Icons.list),
                   title: Text(userLists[index]['list_name']),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => _confirmDelete(context, index),
+                      ),
+                      Icon(Icons.arrow_forward_ios),
+                    ],
+                  ),
                   onTap: () {
                     _handleListItemTap(context, index);
                   },
@@ -82,10 +91,64 @@ class _ListsPageState extends State<ListsPage> {
           _showCreateListDialog(context);
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.black,
       ),
     );
   }
+
+  void _confirmDelete(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this item?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteListItem(index);
+                Navigator.pop(context);
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteListItem(int index) async {
+    String listName = userLists[index]['list_name'];
+
+    // Remove locally
+    setState(() {
+      userLists.removeAt(index);
+    });
+
+    // Remove from Firestore
+    await _removeListFromFirestore(listName);
+  }
+
+  Future<void> _removeListFromFirestore(String listName) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(_userId).update({
+        'portfolyo': FieldValue.arrayRemove([
+          {
+            'list_name': listName,
+            // Include any other fields that are part of the list item
+          }
+        ]),
+      });
+
+      print('List removed from Firestore: $listName');
+    } catch (e) {
+      print('Error removing list from Firestore: $e');
+    }
+  }
+
 
   void _handleSettings(BuildContext context) {
     Navigator.push(

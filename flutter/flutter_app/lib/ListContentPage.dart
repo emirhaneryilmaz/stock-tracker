@@ -55,6 +55,7 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
   return listContent;
 }
 
+  int _selectedIndex = 0;
 
 
 
@@ -76,14 +77,7 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
             },
             icon: Icon(Icons.nightlight_round),
             color: Colors.black,
-          ),
-          IconButton(
-            onPressed: () {
-              _handleSettings(context);
-            },
-            icon: Icon(Icons.settings),
-            color: Colors.black,
-          ),
+          ),          
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
@@ -117,6 +111,34 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
           }
         },
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home Page',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: 'News',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Follow Lists',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_2_outlined),
+            label: 'Profile',
+          ),
+          // Diğer menü öğeleri...
+        ],
+      ),
     );
   }
 
@@ -142,3 +164,4 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
     );
   }
 }
+
