@@ -12,6 +12,7 @@ void main() async {
   await Firebase.initializeApp(
     // Replace with actual values
     options: FirebaseOptions(
+      storageBucket: "gs://stock-tracker-baris-emirhan.appspot.com", 
       apiKey: "AIzaSyCtXUNJXvoIEzqnkh8LJmHmIyhcaQ3UzH4",
       appId: "1:447049274163:android:545b52892c691195bf2446",
       messagingSenderId: "447049274163",
