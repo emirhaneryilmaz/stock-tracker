@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final WebSocketChannel channel =
       WebSocketChannel.connect(Uri.parse('wss://ws.coinapi.io/v1/'));
-  Map<String, String> prices = {'BTC': '-', 'ETH': '-'};
+  Map<String, String> prices = {'BTC': '-', 'ETH': '-', 'BNB': '-' , 'SOL': '-', 'XRP': '-'};
 
   @override
   void initState() {
