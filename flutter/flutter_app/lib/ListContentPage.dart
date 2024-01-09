@@ -103,6 +103,11 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
               itemCount: listContent.length,
               itemBuilder: (context, index) {
                 return ListTile(
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),onPressed: () {
+                    _deleteListItem(index);
+                   },
+                   ),
                   title: Text(listContent[index]['item_name'] ?? ''),
                   // Diğer öğe bilgilerini buraya ekle
                 );
@@ -141,6 +146,37 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
       ),
     );
   }
+
+  void _deleteListItem(int index) async {
+  // Get the current user document from Firestore
+  DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(_userId).get();
+
+  if (userSnapshot.exists) {
+    List<dynamic> userPortfolyo = List.from(userSnapshot['portfolyo']);
+
+    // Find the index of the item to be removed
+    int itemIndex = index;
+
+    if (itemIndex >= 0 && itemIndex < userPortfolyo.length) {
+      // Remove the item from list_content
+      List<dynamic> listContent = List.from(userPortfolyo[itemIndex]['list_content']);
+      listContent.removeAt(index);
+
+      // Update Firestore with the modified list_content
+      userPortfolyo[itemIndex]['list_content'] = listContent;
+
+      await FirebaseFirestore.instance.collection('users').doc(_userId).update({
+        'portfolyo': userPortfolyo,
+      });
+
+      print('Item removed from Firestore at index $index');
+    } else {
+      print('Error: Index out of bounds');
+    }
+  } else {
+    print('Error: User document not found');
+  }
+}
 
   void _handleSettings(BuildContext context) {
     Navigator.push(
