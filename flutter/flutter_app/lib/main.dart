@@ -5,12 +5,12 @@ import 'ListsPage.dart';
 import 'NewsPage.dart';
 import 'HomePage.dart';
 import 'SettingsPage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  //await Firebase.initializeApp();
   await Firebase.initializeApp(
-    // Replace with actual values
     options: FirebaseOptions(
       storageBucket: "gs://stock-tracker-baris-emirhan.appspot.com", 
       apiKey: "AIzaSyCtXUNJXvoIEzqnkh8LJmHmIyhcaQ3UzH4",
@@ -19,6 +19,17 @@ void main() async {
       projectId: "stock-tracker-baris-emirhan",
     ),
   );
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // Bildirim alındığında yapılacak işlemler
+    print('Bildirim alındı: ${message.notification!.title}');
+  });
+
+   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    // Uygulama açıkken bildirim tıklandığında yapılacak işlemler
+    print('Uygulama açıkken bildirim tıklandı: ${message.notification!.title}');
+  });
+
   runApp(MyApp());
 }
 
