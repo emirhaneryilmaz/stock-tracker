@@ -121,33 +121,37 @@ class _ListsPageState extends State<ListsPage> {
   }
 
   void _deleteListItem(int index) async {
-    String listName = userLists[index]['list_name'];
+  String listName = userLists[index]['list_name'];
 
-    // Remove locally
-    setState(() {
-      userLists.removeAt(index);
+  // Remove locally
+  setState(() {
+    userLists.removeAt(index);
+  });
+
+  // Remove from Firestore
+  await _removeListFromFirestore(index, listName);
+}
+
+Future<void> _removeListFromFirestore(int index, String listName) async {
+  try {
+    // Get the current list from Firestore
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection('users').doc(_userId).get();
+    List<dynamic> currentList = List.from(documentSnapshot['portfolyo']);
+
+    // Remove the item at the specified index
+    currentList.removeAt(index);
+
+    // Update Firestore with the modified list
+    await FirebaseFirestore.instance.collection('users').doc(_userId).update({
+      'portfolyo': currentList,
     });
 
-    // Remove from Firestore
-    await _removeListFromFirestore(listName);
+    print('List removed from Firestore at index $index: $listName');
+  } catch (e) {
+    print('Error removing list from Firestore: $e');
   }
+}
 
-  Future<void> _removeListFromFirestore(String listName) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(_userId).update({
-        'portfolyo': FieldValue.arrayRemove([
-          {
-            'list_name': listName,
-            // Include any other fields that are part of the list item
-          }
-        ]),
-      });
-
-      print('List removed from Firestore: $listName');
-    } catch (e) {
-      print('Error removing list from Firestore: $e');
-    }
-  }
 
 
   void _handleSettings(BuildContext context) {
