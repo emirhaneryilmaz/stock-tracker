@@ -1,19 +1,81 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/SettingsPage.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'LoginPage.dart';
 import 'dart:async';
+import '../keys.dart';
 
-class HomePage extends StatelessWidget {
-   final String _userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-   Future<List<Map<String, dynamic>>> _fetchUserListsFromFirestore() async {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final WebSocketChannel channel =
+      WebSocketChannel.connect(Uri.parse('wss://ws.coinapi.io/v1/'));
+  Map<String, String> prices = {'BTC': '-', 'ETH': '-'};
+
+  @override
+  void initState() {
+    super.initState();
+    // Subscribe to the WebSocket channel
+    channel.sink.add(jsonEncode({
+      // WebSocket subscription details
+      "type": "hello",
+      "apikey": coinApiKey,
+      "subscribe_data_type": ["trade"],
+      "subscribe_filter_symbol_id": [
+        "BINANCE_SPOT_BTC_USDT\$",
+        "BINANCE_SPOT_ETH_USDT\$",
+        "BINANCE_SPOT_BNB_USDT\$",
+        "BINANCE_SPOT_SOL_USDT\$",
+        "BINANCE_SPOT_XRP_USDT\$"
+      ]
+    }));
+
+    channel.stream.listen((data) {
+      final jsonData = jsonDecode(data);
+      setState(() {
+        // Update prices based on received data
+        // Assuming jsonData contains the updated price for each asset
+        if (jsonData['type'] == 'trade') {
+          String symbolId = jsonData['symbol_id'];
+          String price = jsonData['price'].toString();
+          // Assuming 'symbol_id' tells you whether the data is for BTC or ETH
+          if (symbolId.contains('BTC')) {
+            prices['BTC'] = price;
+          } else if (symbolId.contains('ETH')) {
+            prices['ETH'] = price;
+          }
+          else if (symbolId.contains('BNB')) {
+            prices['BNB'] = price;
+          }
+          else if (symbolId.contains('SOL')) {
+            prices['SOL'] = price;
+          }
+          else if (symbolId.contains('XRP')) {
+            prices['XRP'] = price;
+          }
+        }
+      });
+    }, onError: (error) {
+      print('WebSocket error: $error');
+    });
+  }
+
+  final String _userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  Future<List<Map<String, dynamic>>> _fetchUserListsFromFirestore() async {
     List<Map<String, dynamic>> userLists = [];
 
     try {
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(_userId).get();
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .get();
 
       List<dynamic>? listsArray = userSnapshot['portfolyo'] as List<dynamic>?;
 
@@ -81,10 +143,15 @@ class HomePage extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 5,
+              itemCount: prices.keys
+                  .length, // Adjusted to the number of assets in the prices map
               itemBuilder: (context, index) {
-                List<String> assetNames = ['Altın', 'EUR', 'USD', 'BIST100', 'BIST30'];
-                GlobalKey _buttonKey = GlobalKey();
+                String assetName = prices.keys
+                    .elementAt(index); // Get the asset name (BTC, ETH)
+                String assetPrice = prices[assetName] ??
+                    '-'; // Get the price of the asset, default to '-'
+
+                GlobalKey _buttonKey = GlobalKey(); // Unique key for each asset
 
                 return Container(
                   margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -96,7 +163,7 @@ class HomePage extends StatelessWidget {
                   child: ListTile(
                     title: InkWell(
                       onTap: () {
-                        _handleAssetTap(assetNames[index]);
+                        _handleAssetTap(assetName);
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,18 +171,17 @@ class HomePage extends StatelessWidget {
                           CircleAvatar(
                             backgroundColor: Colors.blue,
                             child: Text(
-                              assetNames[index][0],
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                              assetName[0],
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                           SizedBox(width: 16.0),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(assetNames[index]),
-                              Text('Fiyat: \$19.99'),
+                              Text(assetName),
+                              Text(
+                                  'Fiyat: \$${assetPrice}'), // Display the actual price
                             ],
                           ),
                           SizedBox(width: 16.0),
@@ -126,9 +192,10 @@ class HomePage extends StatelessWidget {
                             icon: Icon(Icons.arrow_forward),
                           ),
                           IconButton(
-                            key: _buttonKey,
+                            key:
+                                _buttonKey, // Use the unique key for the like button
                             onPressed: () {
-                              _handleLikeButton(context, _buttonKey, assetNames[index]);
+                              _handleLikeButton(context, _buttonKey, assetName);
                             },
                             icon: Icon(Icons.thumb_up),
                           ),
@@ -146,10 +213,17 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  @override
+  void dispose() {
+    channel.sink.close();
+    super.dispose();
+  }
+
   void _handleSettings(BuildContext context) {
     Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsPage()),);
+      context,
+      MaterialPageRoute(builder: (context) => SettingsPage()),
+    );
   }
 
   void _handleDarkMode() {
@@ -160,72 +234,82 @@ class HomePage extends StatelessWidget {
     print('$assetName tiklandi');
   }
 
- void _handleLikeButton(BuildContext context, GlobalKey key, String selectedProduct) async {
-  RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
+  void _handleLikeButton(
+      BuildContext context, GlobalKey key, String selectedProduct) async {
+    RenderBox renderBox = key.currentContext?.findRenderObject() as RenderBox;
 
-  if (renderBox != null) {
-    var offset = renderBox.localToGlobal(Offset.zero);
+    if (renderBox != null) {
+      var offset = renderBox.localToGlobal(Offset.zero);
 
-    List<Map<String, dynamic>> userLists = await _fetchUserListsFromFirestore();
+      List<Map<String, dynamic>> userLists =
+          await _fetchUserListsFromFirestore();
 
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
-      items: userLists.map((list) {
-        return PopupMenuItem(
-          child: Text(list['list_name']),
-          value: list['list_name'],
-        );
-      }).toList(),
-      elevation: 8.0,
-    ).then((value) {
-  if (value != null) {
-    // Seçilen liste: $value, Seçilen ürün: $selectedProduct
-    String selectedList = value.toString();
+      showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
+        items: userLists.map((list) {
+          return PopupMenuItem(
+            child: Text(list['list_name']),
+            value: list['list_name'],
+          );
+        }).toList(),
+        elevation: 8.0,
+      ).then((value) {
+        if (value != null) {
+          // Seçilen liste: $value, Seçilen ürün: $selectedProduct
+          String selectedList = value.toString();
 
-    // Seçilen ürünü seçilen listeye ekleyin
-    _addProductToList(selectedProduct, selectedList);
-  }
-});
-  }
-}
-
-Future<void> _addProductToList(String selectedProduct, String listName) async {
-  try {
-    // Firestore'dan kullanıcının verilerini çek
-    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(_userId).get();
-
-    // Kullanıcının portföy verisini al
-    List<dynamic>? userLists = userSnapshot['portfolyo'] as List<dynamic>?;
-
-    if (userLists != null) {
-      // Seçilen liste ismine ait olan listeyi bul
-      Map<String, dynamic>? selectedList = userLists.firstWhere(
-        (list) => list['list_name'] == listName,
-        orElse: () => null,
-      );
-
-      if (selectedList != null) {
-        // Listeyi güncelle ve yeni ürünü ekle
-        List<dynamic> listContent = selectedList['list_content'] as List<dynamic>;
-        listContent.add(selectedProduct);
-
-        // Firestore'a güncellenmiş veriyi kaydet
-        await FirebaseFirestore.instance.collection('users').doc(_userId).update({
-          'portfolyo': userLists,
-        });
-
-        print('Ürün başarıyla eklendi: $selectedProduct');
-      } else {
-        print('Hata: Belirtilen liste bulunamadı');
-      }
-    } else {
-      print('Hata: Kullanıcının portföyü bulunamadı');
+          // Seçilen ürünü seçilen listeye ekleyin
+          _addProductToList(selectedProduct, selectedList);
+        }
+      });
     }
-  } catch (e) {
-    print('Ürün eklenirken bir hata oluştu: $e');
   }
-}
+
+  Future<void> _addProductToList(
+      String selectedProduct, String listName) async {
+    try {
+      // Firestore'dan kullanıcının verilerini çek
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .get();
+
+      // Kullanıcının portföy verisini al
+      List<dynamic>? userLists = userSnapshot['portfolyo'] as List<dynamic>?;
+
+      if (userLists != null) {
+        // Seçilen liste ismine ait olan listeyi bul
+        Map<String, dynamic>? selectedList = userLists.firstWhere(
+          (list) => list['list_name'] == listName,
+          orElse: () => null,
+        );
+
+        if (selectedList != null) {
+          // Listeyi güncelle ve yeni ürünü ekle
+          List<dynamic> listContent =
+              selectedList['list_content'] as List<dynamic>;
+          listContent.add(selectedProduct);
+
+          // Firestore'a güncellenmiş veriyi kaydet
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_userId)
+              .update({
+            'portfolyo': userLists,
+          });
+
+          print('Ürün başarıyla eklendi: $selectedProduct');
+        } else {
+          print('Hata: Belirtilen liste bulunamadı');
+        }
+      } else {
+        print('Hata: Kullanıcının portföyü bulunamadı');
+      }
+    } catch (e) {
+      print('Ürün eklenirken bir hata oluştu: $e');
+    }
+  }
 
   void _handleLogout(BuildContext context) async {
     // Logout işlevi
