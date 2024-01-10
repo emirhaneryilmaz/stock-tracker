@@ -20,7 +20,7 @@ class BottomMenu extends StatelessWidget {
         ),
       ],
       selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.black,
+      unselectedItemColor: Colors.black,  
       onTap: (index) {
         _handleBottomNav(context, index);
       },
