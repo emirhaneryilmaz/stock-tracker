@@ -1,12 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:html' as html;
+import 'package:provider/provider.dart';
 
 
 void main() {
   runApp(MyApp());
 }
+
+Future<List<Map<String, dynamic>>> _getUserAssets(String userId) async {
+  try {
+    DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(userId);
+    DocumentSnapshot userDocumentSnapshot = await userDocument.get();
+
+    Map<String, dynamic>? userData = userDocumentSnapshot.data() as Map<String, dynamic>?;
+
+    List<dynamic> userAssets = (userData?['user_assets'] as List<dynamic>?) ?? [];
+
+    List<Map<String, dynamic>> assetList = [];
+
+    for (var asset in userAssets) {
+      assetList.add(Map<String, dynamic>.from(asset));
+    }
+
+    return assetList;
+  } catch (e) {
+    print('Firestore veri alma hatası: $e');
+    return [];
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -126,26 +151,35 @@ class _SettingsPageState extends State<SettingsPage> {
   
   TextEditingController _searchController = TextEditingController();
   List<String> sampleData = [
-    "Ahmet",
-    "Ayşe",
-    "Ali",
-    "Fatma",
-    "Mehmet",
-    "Zeynep",
-    "Emre",
-    "Ceren",
+    "BTC",
+    "ETH",
+    "XRP",
+    "DOGE",
+    "BNB",
+    "USDT",
+    "BUSD",
+    "TRON",
     // Diğer örnek isimleri buraya ekleyebilirsiniz.
   ];
 
   List<String> filteredData = [];
-  List<String> _selectedNames = [];
 
   @override
   void initState() {
     super.initState();
+    _loadUserAssets();
     // Initialize filteredData with all names initially
     filteredData = List.from(sampleData);
   }
+
+  Future<void> _loadUserAssets() async {
+  List<Map<String, dynamic>> userAssets = await _getUserAssets(_userId);
+
+  setState(() {
+    _selectedNames = userAssets.map((asset) => asset['coin_name'] as String).toList();
+    _selectedQuantities = userAssets.map((asset) => asset['amount'] as int).toList();
+  });
+}
 
   void filterData(String query) {
     setState(() {
@@ -156,58 +190,177 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  Future<void> showAddDialog(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (query) {
-                    filterData(query);
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Search',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredData.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(filteredData[index]),
-                      onTap: () {
-                        String selectedName = filteredData[index];
-                        setState(() {
-                          _selectedNames.add(selectedName);
-                        });
-                        print(_selectedNames); // Debugging line
-                        Navigator.of(context).pop();
-                      },
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
+List<String> _selectedNames = [];
+List<int> _selectedQuantities = [];
+final String _userId = FirebaseAuth.instance.currentUser?.uid ?? ''; 
+
+Future<void> showAddDialog(BuildContext context) async {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      String selectedName = ""; // Seçilen ürün adını saklamak için
+      int? selectedQuantity; // Seçilen adet sayısını saklamak için (nullable)
+
+      return Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (query) {
+                  filterData(query);
                 },
-                child: Text("Close"),
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  prefixIcon: Icon(Icons.search),
+                ),
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredData.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(filteredData[index]),
+                    onTap: () async {
+                      // Adet girişi için bir dialog göster
+                      selectedQuantity = await showQuantityInputDialog(context);
+
+                      if (selectedQuantity != null && selectedQuantity! > 0) {
+                        selectedName = filteredData[index];
+
+                        // Ek parametreleri ekleyerek _saveListToFirestore'yi çağırın
+                       await _saveListToFirestore(_userId, selectedName, selectedQuantity!);
+                       await _loadUserAssets();
+
+                        print("Selected Name: $selectedName, Quantity: $selectedQuantity");
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedQuantity != null && selectedQuantity! > 0) {
+                  await _saveListToFirestore(_userId, selectedName, selectedQuantity!);
+
+                  // Seçilen ürün ve adeti ayrı ayrı kaydet
+                  _selectedNames.add(selectedName);
+                  _selectedQuantities.add(selectedQuantity!);
+                  print(_selectedNames); // Debugging line
+                  print(_selectedQuantities); // Debugging line
+
+                   await _loadUserAssets();
+                }
+                Navigator.of(context).pop();
+              },
+              child: Text("Close"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _saveListToFirestore(String userId, String coinName, int amount) async {
+  try {
+    // Kullanıcının UID'siyle ilişkilendirilmiş belirli bir belge oluşturun
+    DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    // user_assets adlı array içindeki bir dokümanı alın
+    DocumentSnapshot userDocumentSnapshot = await userDocument.get();
+    
+    // Explicitly cast the dynamic data to Map<String, dynamic>
+    Map<String, dynamic>? userData = userDocumentSnapshot.data() as Map<String, dynamic>?;
+
+    // Check if 'user_assets' exists in the data and is a List<dynamic>
+    List<dynamic> userAssets = (userData?['user_assets'] as List<dynamic>?) ?? [];
+
+    // Yeni bir map oluşturun
+    Map<String, dynamic> newMap = {
+      'coin_name': coinName,
+      'amount': amount,
+    };
+
+    // Yeni map'i user_assets array'inin içine ekleyin
+    userAssets.add(newMap);
+
+    // Oluşturulan belgeyi güncelleyin
+    await userDocument.update({
+      'user_assets': userAssets,
+    });
+
+    print('Yeni map eklendi: $newMap');
+  } catch (e) {
+    print('Firestore veri ekleme hatası: $e');
   }
+}
+
+void _deleteAsset(int index) async {
+  try {
+    // Kullanıcının UID'siyle ilişkilendirilmiş belirli bir belgeyi alın
+    DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(_userId);
+
+    // user_assets adlı array içindeki bir dokümanı alın
+    DocumentSnapshot userDocumentSnapshot = await userDocument.get();
+
+    // Explicitly cast the dynamic data to Map<String, dynamic>
+    Map<String, dynamic>? userData = userDocumentSnapshot.data() as Map<String, dynamic>?;
+
+    // Check if 'user_assets' exists in the data and is a List<dynamic>
+    List<dynamic> userAssets = (userData?['user_assets'] as List<dynamic>?) ?? [];
+
+    // Seçilen varlığı listeden kaldırın
+    userAssets.removeAt(index);
+
+    // Kaldırılan varlığı güncellenmiş listeyle birlikte Firestore'a geri kaydedin
+    await userDocument.update({
+      'user_assets': userAssets,
+    });
+
+    // _loadUserAssets fonksiyonunu kullanarak ListView'ı güncelleyin
+    await _loadUserAssets();
+
+    print('Varlık silindi: index $index');
+  } catch (e) {
+    print('Firestore veri silme hatası: $e');
+  }
+}
+
+
+// Adet girişi için bir dialog gösteren fonksiyon
+Future<int?> showQuantityInputDialog(BuildContext context) async {
+  int? quantity; // nullable integer
+
+  return showDialog<int?>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Enter Quantity'),
+        content: TextField(
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            quantity = int.tryParse(value);
+          },
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(quantity);
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +453,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             title: Text(_selectedNames[index]),
+                            subtitle: Text('Amount: ${_selectedQuantities[index]}'),
+                            trailing: IconButton(icon: Icon(Icons.delete),
+                            onPressed: () {
+                              // silme metodu çağır.
+                              _deleteAsset(index);
+                            })
                           );
                         },
                       ),

@@ -178,6 +178,7 @@ Future<List<Map<String, dynamic>>> _fetchListContentFromFirestore() async {
   }
 }
 
+
   void _handleSettings(BuildContext context) {
     Navigator.push(
       context,
