@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_app/UserAssetsEvent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,13 +16,86 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<List<Map<String, dynamic>>> _getUserAssets(String userId) async {
+    try {
+      DocumentReference userDocument =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+      DocumentSnapshot userDocumentSnapshot = await userDocument.get();
+
+      Map<String, dynamic>? userData =
+          userDocumentSnapshot.data() as Map<String, dynamic>?;
+
+      List<dynamic> userAssets =
+          (userData?['user_assets'] as List<dynamic>?) ?? [];
+
+      List<Map<String, dynamic>> assetList = [];
+
+      for (var asset in userAssets) {
+        assetList.add(Map<String, dynamic>.from(asset));
+      }
+
+      print('User assets: $assetList'); // Konsola çıktıyı yazdır
+
+      return assetList;
+    } catch (e) {
+      print('Firestore veri alma hatası: $e');
+      return [];
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeUserAssets(); // Sayfa her ziyaret edildiğinde çağır
+  }
+
+  void _initializeUserAssets() async {
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      List<Map<String, dynamic>> userAssets = await _getUserAssets(userId);
+      // Burada kullanıcı varlıkları ile ilgili işlemler yapabilirsiniz
+      // Örneğin, kullanıcı arayüzünü güncelleyebilirsiniz
+    }
+  }
+
   final WebSocketChannel channel =
       WebSocketChannel.connect(Uri.parse('wss://ws.coinapi.io/v1/'));
-  Map<String, String> prices = {'BTC': '-', 'ETH': '-', 'BNB': '-' , 'SOL': '-', 'XRP': '-'};
+  Map<String, String> prices = {
+    "ADA": '-',
+    "ATOM": '-',
+    "AVAX": '-',
+    "BNB": '-',
+    "BTC": '-',
+    "DAI": '-',
+    "DOGE": '-',
+    "DOT": '-',
+    "ETH": '-',
+    "ICP": '-',
+    "INJ": '-',
+    "LINK": '-',
+    "LTC": '-',
+    "MATIC": '-',
+    "NEAR": '-',
+    "OP": '-',
+    "SHIB": '-',
+    "SOL": '-',
+    "TON": '-',
+    "TRX": '-',
+    "UNI": '-',
+    "USDC": '-',
+    "USDT": '-',
+    "XLM": '-',
+    "XRP": '-'
+  };
 
   @override
   void initState() {
     super.initState();
+    // Event'i dinleyin
+    UserAssetsEvent.onUserAssetsChanged.stream.listen((_) {
+      _initializeUserAssets();
+    });
+    _initializeUserAssets();
     // Subscribe to the WebSocket channel
     channel.sink.add(jsonEncode({
       // WebSocket subscription details
@@ -29,10 +103,30 @@ class _HomePageState extends State<HomePage> {
       "apikey": coinApiKey,
       "subscribe_data_type": ["trade"],
       "subscribe_filter_symbol_id": [
-        "BINANCE_SPOT_BTC_USDT\$",
-        "BINANCE_SPOT_ETH_USDT\$",
+        "BINANCE_SPOT_ADA_USDT\$",
+        "BINANCE_SPOT_ATOM_USDT\$",
+        "BINANCE_SPOT_AVAX_USDT\$",
         "BINANCE_SPOT_BNB_USDT\$",
+        "BINANCE_SPOT_BTC_USDT\$",
+        "BINANCE_SPOT_DAI_USDT\$",
+        "BINANCE_SPOT_DOGE_USDT\$",
+        "BINANCE_SPOT_DOT_USDT\$",
+        "BINANCE_SPOT_ETH_USDT\$",
+        "BINANCE_SPOT_ICP_USDT\$",
+        "BINANCE_SPOT_INJ_USDT\$",
+        "BINANCE_SPOT_LINK_USDT\$",
+        "BINANCE_SPOT_LTC_USDT\$",
+        "BINANCE_SPOT_MATIC_USDT\$",
+        "BINANCE_SPOT_NEAR_USDT\$",
+        "BINANCE_SPOT_OP_USDT\$",
+        "BINANCE_SPOT_SHIB_USDT\$",
         "BINANCE_SPOT_SOL_USDT\$",
+        "BINANCE_SPOT_TON_USDT\$",
+        "BINANCE_SPOT_TRX_USDT\$",
+        "BINANCE_SPOT_UNI_USDT\$",
+        "BINANCE_SPOT_USDC_USDT\$",
+        "BINANCE_SPOT_USDT_USDT\$",
+        "BINANCE_SPOT_XLM_USDT\$",
         "BINANCE_SPOT_XRP_USDT\$"
       ]
     }));
@@ -50,15 +144,52 @@ class _HomePageState extends State<HomePage> {
             prices['BTC'] = price;
           } else if (symbolId.contains('ETH')) {
             prices['ETH'] = price;
-          }
-          else if (symbolId.contains('BNB')) {
+          } else if (symbolId.contains('BNB')) {
             prices['BNB'] = price;
-          }
-          else if (symbolId.contains('SOL')) {
+          } else if (symbolId.contains('SOL')) {
             prices['SOL'] = price;
-          }
-          else if (symbolId.contains('XRP')) {
+          } else if (symbolId.contains('XRP')) {
             prices['XRP'] = price;
+          } else if (symbolId.contains('ADA')) {
+            prices['ADA'] = price;
+          } else if (symbolId.contains('ATOM')) {
+            prices['ATOM'] = price;
+          } else if (symbolId.contains('AVAX')) {
+            prices['AVAX'] = price;
+          } else if (symbolId.contains('DAI')) {
+            prices['DAI'] = price;
+          } else if (symbolId.contains('DOGE')) {
+            prices['DOGE'] = price;
+          } else if (symbolId.contains('DOT')) {
+            prices['DOT'] = price;
+          } else if (symbolId.contains('ICP')) {
+            prices['ICP'] = price;
+          } else if (symbolId.contains('INJ')) {
+            prices['INJ'] = price;
+          } else if (symbolId.contains('LINK')) {
+            prices['LINK'] = price;
+          } else if (symbolId.contains('LTC')) {
+            prices['LTC'] = price;
+          } else if (symbolId.contains('MATIC')) {
+            prices['MATIC'] = price;
+          } else if (symbolId.contains('NEAR')) {
+            prices['NEAR'] = price;
+          } else if (symbolId.contains('OP')) {
+            prices['OP'] = price;
+          } else if (symbolId.contains('SHIB')) {
+            prices['SHIB'] = price;
+          } else if (symbolId.contains('TON')) {
+            prices['TON'] = price;
+          } else if (symbolId.contains('TRX')) {
+            prices['TRX'] = price;
+          } else if (symbolId.contains('UNI')) {
+            prices['UNI'] = price;
+          } else if (symbolId.contains('USDC')) {
+            prices['USDC'] = price;
+          } else if (symbolId.contains('USDT')) {
+            prices['USDT'] = price;
+          } else if (symbolId.contains('XLM')) {
+            prices['XLM'] = price;
           }
         }
       });
