@@ -43,20 +43,33 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _initializeUserAssets(); // Sayfa her ziyaret edildiğinde çağır
-  }
+  List<Map<String, dynamic>> userAssets = [];
+  double totalAssetsValue = 0.0;
+
+  // void _initializeUserAssets() async {
+  //   String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  //   if (userId.isNotEmpty) {
+  //     // List<Map<String, dynamic>> userAssets = await _getUserAssets(userId);
+  //     userAssets = await _getUserAssets(userId);
+
+  //     // Burada kullanıcı varlıkları ile ilgili işlemler yapabilirsiniz
+  //     // Örneğin, kullanıcı arayüzünü güncelleyebilirsiniz
+  //   }
+  // }
 
   void _initializeUserAssets() async {
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    if (userId.isNotEmpty) {
-      List<Map<String, dynamic>> userAssets = await _getUserAssets(userId);
-      // Burada kullanıcı varlıkları ile ilgili işlemler yapabilirsiniz
-      // Örneğin, kullanıcı arayüzünü güncelleyebilirsiniz
-    }
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  if (userId.isNotEmpty) {
+    List<Map<String, dynamic>> assets = await _getUserAssets(userId);
+    setState(() {
+      userAssets = assets;
+      // Burada totalAssetsValue'yi de gerektiği gibi hesaplayabilirsiniz
+    });
   }
+}
+
+
+  
 
   final WebSocketChannel channel =
       WebSocketChannel.connect(Uri.parse('wss://ws.coinapi.io/v1/'));
@@ -134,7 +147,7 @@ class _HomePageState extends State<HomePage> {
     channel.stream.listen((data) {
       final jsonData = jsonDecode(data);
       setState(() {
-        // Update prices based on received data
+     
         // Assuming jsonData contains the updated price for each asset
         if (jsonData['type'] == 'trade') {
           String symbolId = jsonData['symbol_id'];
@@ -192,11 +205,39 @@ class _HomePageState extends State<HomePage> {
             prices['XLM'] = price;
           }
         }
+
+          // Fiyatları güncelle ve toplam varlık değerini hesapla
+        updatePricesAndCalculateTotalValue(jsonData);
       });
     }, onError: (error) {
       print('WebSocket error: $error');
     });
   }
+
+  void updatePricesAndCalculateTotalValue(dynamic jsonData) {
+  if (jsonData['type'] == 'trade') {
+    String symbolId = jsonData['symbol_id']; // Örn: "BINANCE_SPOT_ETH_USDT"
+    double price = double.tryParse(jsonData['price'].toString()) ?? 0.0;
+    // Fiyatı güncelle
+    prices[symbolId] = price.toString(); // double'dan String'e çevirme
+
+    // Toplam varlık değerini hesapla
+    totalAssetsValue = 0.0;
+    for (var asset in userAssets) {
+      String coinName = asset['coin_name']; // Örn: "ETH"
+      double amount = asset['amount']; // Örn: 4
+
+      // WebSocket'ten gelen veri ile eşleşecek şekilde anahtar oluştur
+      String assetKey = "BINANCE_SPOT_${coinName}_USDT";
+
+      // Eşleşen fiyatı al ve miktarla çarp
+      double assetPrice = double.tryParse(prices[assetKey] ?? '0.0') ?? 0.0;
+
+      totalAssetsValue += assetPrice * amount;
+    }
+  }
+}
+
 
   final String _userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   Future<List<Map<String, dynamic>>> _fetchUserListsFromFirestore() async {
@@ -250,7 +291,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     SizedBox(height: 8.0),
                     Text(
-                      '\$5,000.00',
+                      '\$${totalAssetsValue.toStringAsFixed(2)}',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 24.0,

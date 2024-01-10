@@ -360,6 +360,9 @@ class _SettingsPageState extends State<SettingsPage> {
         'user_assets': userAssets,
       });
 
+      // Event'i yayınlayın
+      UserAssetsEvent.notifyUserAssetsChanged();
+
       // _loadUserAssets fonksiyonunu kullanarak ListView'ı güncelleyin
       await _loadUserAssets();
 
