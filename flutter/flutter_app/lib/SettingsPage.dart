@@ -413,7 +413,7 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  // Boş profil resmi
+                  backgroundImage: AssetImage("../utils/pfp_sample.png"),
                 ),
                 SizedBox(width: 16),
                 Column(

@@ -274,8 +274,20 @@ class _HomePageState extends State<HomePage> {
               width: MediaQuery.of(context).size.width * 0.85,
               height: MediaQuery.of(context).size.height * 0.225,
               decoration: BoxDecoration(
-                color: Color(0xFF93B1A6),
+               gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.green],
+                  begin: Alignment.bottomRight,
+                  end: Alignment.topLeft,
+                ),
                 borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.2), // Gölge rengi ve opaklığı
+        spreadRadius: 4, // Yayılma yarıçapı
+        blurRadius: 7, // Bulanıklık yarıçapı
+        offset: Offset(0, 3), // Gölgenin konumu (x, y)
+      ),
+    ],
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -285,7 +297,7 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'Your Assets',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.white70,
                         fontSize: 18.0,
                       ),
                     ),
@@ -293,8 +305,8 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       '\$${totalAssetsValue.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24.0,
+                        color: Colors.white,
+                        fontSize: 35.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -326,55 +338,63 @@ class _HomePageState extends State<HomePage> {
                 GlobalKey _buttonKey = GlobalKey(); // Unique key for each asset
 
                 return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
                   height: 65.0,
                   decoration: BoxDecoration(
-                    color: Color(0xFFD9D9D9),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                   child: ListTile(
-                    title: InkWell(
-                      onTap: () {
-                        _handleAssetTap(assetName);
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.blue,
-                            child: Text(
-                              assetName[0],
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          SizedBox(width: 16.0),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(assetName),
-                              Text(
-                                  'Price: \$${assetPrice}'), // Display the actual price
-                            ],
-                          ),
-                          SizedBox(width: 16.0),
-                          IconButton(
-                            onPressed: () {
-                              print('Artma/Azalma');
-                            },
-                            icon: Icon(Icons.arrow_forward),
-                          ),
-                          IconButton(
-                            key:
-                                _buttonKey, // Use the unique key for the like button
-                            onPressed: () {
-                              _handleLikeButton(context, _buttonKey, assetName);
-                            },
-                            icon: Icon(Icons.thumb_up),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+  title: InkWell(
+    onTap: () {
+      _handleAssetTap(assetName);
+    },
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: Color(0xFFC21E47),
+              child: Text(
+                assetName[0],
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(assetName),
+                  Text('Price: \$${assetPrice}'),
+                ],
+              ),
+            ),
+            SizedBox(width: 16.0),
+            IconButton(
+              onPressed: () {
+                print('Artma/Azalma');
+              },
+              icon: Icon(Icons.arrow_forward),
+            ),
+            IconButton(
+              key: _buttonKey,
+              onPressed: () {
+                _handleLikeButton(context, _buttonKey, assetName);
+              },
+              icon: Icon(Icons.thumb_up),
+            ),
+          ],
+        ),
+        Divider(), 
+      ],
+    ),
+  ),
+),
+ 
                 );
               },
             ),
