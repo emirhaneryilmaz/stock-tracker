@@ -58,23 +58,21 @@ class _HomePageState extends State<HomePage> {
   // }
 
   void _initializeUserAssets() async {
-  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-  if (userId.isNotEmpty) {
-    List<Map<String, dynamic>> assets = await _getUserAssets(userId);
-    setState(() {
-      userAssets = assets;
-      // Burada totalAssetsValue'yi de gerektiği gibi hesaplayabilirsiniz
-    });
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      List<Map<String, dynamic>> assets = await _getUserAssets(userId);
+      setState(() {
+        userAssets = assets;
+        // Burada totalAssetsValue'yi de gerektiği gibi hesaplayabilirsiniz
+      });
+    }
   }
-}
-
-
-  
 
   final WebSocketChannel channel =
       WebSocketChannel.connect(Uri.parse('wss://ws.coinapi.io/v1/'));
   Map<String, String> prices = {
     "ADA": '-',
+    "ALGO": '-',
     "ATOM": '-',
     "AVAX": '-',
     "BNB": '-',
@@ -97,8 +95,7 @@ class _HomePageState extends State<HomePage> {
     "UNI": '-',
     "USDC": '-',
     "USDT": '-',
-    "SAND": '-',
-    "XRP": '-'
+    "XRP": '-',
   };
 
   @override
@@ -117,6 +114,7 @@ class _HomePageState extends State<HomePage> {
       "subscribe_data_type": ["trade"],
       "subscribe_filter_symbol_id": [
         "BINANCE_SPOT_ADA_USDT\$",
+        "BINANCE_SPOT_ALGO_USDT\$",
         "BINANCE_SPOT_ATOM_USDT\$",
         "BINANCE_SPOT_AVAX_USDT\$",
         "BINANCE_SPOT_BNB_USDT\$",
@@ -138,16 +136,14 @@ class _HomePageState extends State<HomePage> {
         "BINANCE_SPOT_TRX_USDT\$",
         "BINANCE_SPOT_UNI_USDT\$",
         "BINANCE_SPOT_USDC_USDT\$",
-        "BINANCE_SPOT_USDT_USDT\$",
-        "BINANCE_SPOT_SAND_USDT\$",
-        "BINANCE_SPOT_XRP_USDT\$"
+        "BINANCE_SPOT_USDT_TRY\$",
+        "BINANCE_SPOT_XRP_USDT\$",
       ]
     }));
 
     channel.stream.listen((data) {
       final jsonData = jsonDecode(data);
       setState(() {
-     
         // Assuming jsonData contains the updated price for each asset
         if (jsonData['type'] == 'trade') {
           String symbolId = jsonData['symbol_id'];
@@ -165,6 +161,8 @@ class _HomePageState extends State<HomePage> {
             prices['XRP'] = price;
           } else if (symbolId.contains('ADA')) {
             prices['ADA'] = price;
+          } else if (symbolId.contains('ALGO')) {
+            prices['ALGO'] = price;
           } else if (symbolId.contains('ATOM')) {
             prices['ATOM'] = price;
           } else if (symbolId.contains('AVAX')) {
@@ -201,12 +199,10 @@ class _HomePageState extends State<HomePage> {
             prices['USDC'] = price;
           } else if (symbolId.contains('USDT')) {
             prices['USDT'] = price;
-          } else if (symbolId.contains('SAND')) {
-            prices['SAND'] = price;
           }
         }
 
-          // Fiyatları güncelle ve toplam varlık değerini hesapla
+        // Fiyatları güncelle ve toplam varlık değerini hesapla
         updatePricesAndCalculateTotalValue(jsonData);
       });
     }, onError: (error) {
@@ -215,29 +211,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   void updatePricesAndCalculateTotalValue(dynamic jsonData) {
-  if (jsonData['type'] == 'trade') {
-    String symbolId = jsonData['symbol_id']; // Örn: "BINANCE_SPOT_ETH_USDT"
-    double price = double.tryParse(jsonData['price'].toString()) ?? 0.0;
-    // Fiyatı güncelle
-    prices[symbolId] = price.toString(); // double'dan String'e çevirme
+    if (jsonData['type'] == 'trade') {
+      String symbolId = jsonData['symbol_id']; // Örn: "BINANCE_SPOT_ETH_USDT"
+      double price = double.tryParse(jsonData['price'].toString()) ?? 0.0;
+      // Fiyatı güncelle
+      prices[symbolId] = price.toString(); // double'dan String'e çevirme
 
-    // Toplam varlık değerini hesapla
-    totalAssetsValue = 0.0;
-    for (var asset in userAssets) {
-      String coinName = asset['coin_name']; // Örn: "ETH"
-      double amount = asset['amount']; // Örn: 4
+      // Toplam varlık değerini hesapla
+      totalAssetsValue = 0.0;
+      for (var asset in userAssets) {
+        String coinName = asset['coin_name']; // Örn: "ETH"
+        double amount = asset['amount']; // Örn: 4
 
-      // WebSocket'ten gelen veri ile eşleşecek şekilde anahtar oluştur
-      String assetKey = "BINANCE_SPOT_${coinName}_USDT";
+        // WebSocket'ten gelen veri ile eşleşecek şekilde anahtar oluştur
+        String assetKey = "BINANCE_SPOT_${coinName}_USDT";
 
-      // Eşleşen fiyatı al ve miktarla çarp
-      double assetPrice = double.tryParse(prices[assetKey] ?? '0.0') ?? 0.0;
+        // Eşleşen fiyatı al ve miktarla çarp
+        double assetPrice = double.tryParse(prices[assetKey] ?? '0.0') ?? 0.0;
 
-      totalAssetsValue += assetPrice * amount;
+        totalAssetsValue += assetPrice * amount;
+      }
     }
   }
-}
-
 
   final String _userId = FirebaseAuth.instance.currentUser?.uid ?? '';
   Future<List<Map<String, dynamic>>> _fetchUserListsFromFirestore() async {
@@ -274,20 +269,21 @@ class _HomePageState extends State<HomePage> {
               width: MediaQuery.of(context).size.width * 0.85,
               height: MediaQuery.of(context).size.height * 0.225,
               decoration: BoxDecoration(
-               gradient: LinearGradient(
+                gradient: LinearGradient(
                   colors: [Colors.blue, Colors.green],
                   begin: Alignment.bottomRight,
                   end: Alignment.topLeft,
                 ),
                 borderRadius: BorderRadius.circular(20.0),
                 boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.2), // Gölge rengi ve opaklığı
-        spreadRadius: 4, // Yayılma yarıçapı
-        blurRadius: 7, // Bulanıklık yarıçapı
-        offset: Offset(0, 3), // Gölgenin konumu (x, y)
-      ),
-    ],
+                  BoxShadow(
+                    color: Colors.black
+                        .withOpacity(0.2), // Gölge rengi ve opaklığı
+                    spreadRadius: 4, // Yayılma yarıçapı
+                    blurRadius: 7, // Bulanıklık yarıçapı
+                    offset: Offset(0, 3), // Gölgenin konumu (x, y)
+                  ),
+                ],
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -345,56 +341,58 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                   child: ListTile(
-  title: InkWell(
-    onTap: () {
-      _handleAssetTap(assetName);
-    },
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              backgroundColor: Color(0xFFC21E47),
-              child: Text(
-                assetName[0],
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(width: 16.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(assetName),
-                  Text('Price: \$${assetPrice}'),
-                ],
-              ),
-            ),
-            SizedBox(width: 16.0),
-            IconButton(
-              onPressed: () {
-                print('Artma/Azalma');
-              },
-              icon: Icon(Icons.arrow_forward),
-            ),
-            IconButton(
-              key: _buttonKey,
-              onPressed: () {
-                _handleLikeButton(context, _buttonKey, assetName);
-              },
-              icon: Icon(Icons.thumb_up),
-            ),
-          ],
-        ),
-        Divider(), 
-      ],
-    ),
-  ),
-),
- 
+                    title: InkWell(
+                      onTap: () {
+                        _handleAssetTap(assetName);
+                      },
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: AssetImage(
+                                    '../utils/$assetName.png'),
+                                // child: Text(
+                                //   assetName[0],
+                                //   style: TextStyle(color: Colors.white),
+                                // ),
+                              ),
+                              SizedBox(width: 16.0),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(assetName),
+                                    Text('Price: \$${assetPrice}'),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 16.0),
+                              IconButton(
+                                onPressed: () {
+                                  print('Artma/Azalma');
+                                },
+                                icon: Icon(Icons.arrow_forward),
+                              ),
+                              IconButton(
+                                key: _buttonKey,
+                                onPressed: () {
+                                  _handleLikeButton(
+                                      context, _buttonKey, assetName);
+                                },
+                                icon: Icon(Icons.thumb_up),
+                              ),
+                            ],
+                          ),
+                          Divider(),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
               },
             ),

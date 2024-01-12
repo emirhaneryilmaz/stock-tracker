@@ -156,6 +156,7 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController _searchController = TextEditingController();
   List<String> sampleData = [
     "ADA",
+    "ALGO",
     "ATOM",
     "AVAX",
     "BNB",
@@ -178,8 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
     "UNI",
     "USDC",
     "USDT",
-    "SAND"
-        "XRP"
+    "XRP",
   ];
 
   List<String> filteredData = [];
