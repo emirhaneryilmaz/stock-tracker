@@ -160,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
     "AVAX",
     "BNB",
     "BTC",
-    "DAI",
+    "MINA",
     "DOGE",
     "DOT",
     "ETH",
@@ -170,16 +170,16 @@ class _SettingsPageState extends State<SettingsPage> {
     "LTC",
     "MATIC",
     "NEAR",
-    "OP",
+    "GRT",
     "SHIB",
     "SOL",
-    "TON",
+    "NEO",
     "TRX",
     "UNI",
     "USDC",
     "USDT",
-    "XLM",
-    "XRP"
+    "SAND"
+        "XRP"
   ];
 
   List<String> filteredData = [];

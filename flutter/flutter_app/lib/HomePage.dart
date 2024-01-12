@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     "AVAX": '-',
     "BNB": '-',
     "BTC": '-',
-    "DAI": '-',
+    "MINA": '-',
     "DOGE": '-',
     "DOT": '-',
     "ETH": '-',
@@ -89,15 +89,15 @@ class _HomePageState extends State<HomePage> {
     "LTC": '-',
     "MATIC": '-',
     "NEAR": '-',
-    "OP": '-',
+    "GRT": '-',
     "SHIB": '-',
     "SOL": '-',
-    "TON": '-',
+    "NEO": '-',
     "TRX": '-',
     "UNI": '-',
     "USDC": '-',
     "USDT": '-',
-    "XLM": '-',
+    "SAND": '-',
     "XRP": '-'
   };
 
@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
         "BINANCE_SPOT_AVAX_USDT\$",
         "BINANCE_SPOT_BNB_USDT\$",
         "BINANCE_SPOT_BTC_USDT\$",
-        "BINANCE_SPOT_DAI_USDT\$",
+        "BINANCE_SPOT_MINA_USDT\$",
         "BINANCE_SPOT_DOGE_USDT\$",
         "BINANCE_SPOT_DOT_USDT\$",
         "BINANCE_SPOT_ETH_USDT\$",
@@ -131,15 +131,15 @@ class _HomePageState extends State<HomePage> {
         "BINANCE_SPOT_LTC_USDT\$",
         "BINANCE_SPOT_MATIC_USDT\$",
         "BINANCE_SPOT_NEAR_USDT\$",
-        "BINANCE_SPOT_OP_USDT\$",
+        "BINANCE_SPOT_GRT_USDT\$",
         "BINANCE_SPOT_SHIB_USDT\$",
         "BINANCE_SPOT_SOL_USDT\$",
-        "BINANCE_SPOT_TON_USDT\$",
+        "BINANCE_SPOT_NEO_USDT\$",
         "BINANCE_SPOT_TRX_USDT\$",
         "BINANCE_SPOT_UNI_USDT\$",
         "BINANCE_SPOT_USDC_USDT\$",
         "BINANCE_SPOT_USDT_USDT\$",
-        "BINANCE_SPOT_XLM_USDT\$",
+        "BINANCE_SPOT_SAND_USDT\$",
         "BINANCE_SPOT_XRP_USDT\$"
       ]
     }));
@@ -169,8 +169,8 @@ class _HomePageState extends State<HomePage> {
             prices['ATOM'] = price;
           } else if (symbolId.contains('AVAX')) {
             prices['AVAX'] = price;
-          } else if (symbolId.contains('DAI')) {
-            prices['DAI'] = price;
+          } else if (symbolId.contains('MINA')) {
+            prices['MINA'] = price;
           } else if (symbolId.contains('DOGE')) {
             prices['DOGE'] = price;
           } else if (symbolId.contains('DOT')) {
@@ -187,12 +187,12 @@ class _HomePageState extends State<HomePage> {
             prices['MATIC'] = price;
           } else if (symbolId.contains('NEAR')) {
             prices['NEAR'] = price;
-          } else if (symbolId.contains('OP')) {
-            prices['OP'] = price;
+          } else if (symbolId.contains('GRT')) {
+            prices['GRT'] = price;
           } else if (symbolId.contains('SHIB')) {
             prices['SHIB'] = price;
-          } else if (symbolId.contains('TON')) {
-            prices['TON'] = price;
+          } else if (symbolId.contains('NEO')) {
+            prices['NEO'] = price;
           } else if (symbolId.contains('TRX')) {
             prices['TRX'] = price;
           } else if (symbolId.contains('UNI')) {
@@ -201,8 +201,8 @@ class _HomePageState extends State<HomePage> {
             prices['USDC'] = price;
           } else if (symbolId.contains('USDT')) {
             prices['USDT'] = price;
-          } else if (symbolId.contains('XLM')) {
-            prices['XLM'] = price;
+          } else if (symbolId.contains('SAND')) {
+            prices['SAND'] = price;
           }
         }
 
