@@ -50,6 +50,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  String userEmail = '';
+  
   Future<void> downloadPDF() async {
     try {
       // Firebase Storage referansını alın
@@ -186,10 +189,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    _getUserEmail();
     super.initState();
     _loadUserAssets();
     // Initialize filteredData with all names initially
     filteredData = List.from(sampleData);
+  }
+   void _getUserEmail() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      setState(() {
+        userEmail = user.email!;
+      });
+    } else {
+      setState(() {
+        userEmail = 'Oturum açmış bir kullanıcı bulunamadı';
+      });
+    }
   }
 
   Future<void> _loadUserAssets() async {
@@ -419,11 +435,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Username',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text('kullanici@email.com'),
+                    Text(userEmail),
                   ],
                 ),
               ],
