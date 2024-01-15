@@ -6,17 +6,18 @@ import 'NewsPage.dart';
 import 'HomePage.dart';
 import 'SettingsPage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //await Firebase.initializeApp();
   await Firebase.initializeApp(
     options: FirebaseOptions(
-      storageBucket: "gs://stock-tracker-baris-emirhan.appspot.com", 
-      apiKey: "AIzaSyCtXUNJXvoIEzqnkh8LJmHmIyhcaQ3UzH4",
-      appId: "1:447049274163:android:545b52892c691195bf2446",
-      messagingSenderId: "447049274163",
-      projectId: "stock-tracker-baris-emirhan",
+      storageBucket: "$storageBucket", 
+      apiKey: "$mainPageApiKey",
+      appId: "$appId",
+      messagingSenderId: "$messagingSenderId",
+      projectId: "$projectId",
     ),
   );
 

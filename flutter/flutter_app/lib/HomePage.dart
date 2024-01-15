@@ -46,24 +46,13 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> userAssets = [];
   double totalAssetsValue = 0.0;
 
-  // void _initializeUserAssets() async {
-  //   String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-  //   if (userId.isNotEmpty) {
-  //     // List<Map<String, dynamic>> userAssets = await _getUserAssets(userId);
-  //     userAssets = await _getUserAssets(userId);
-
-  //     // Burada kullanıcı varlıkları ile ilgili işlemler yapabilirsiniz
-  //     // Örneğin, kullanıcı arayüzünü güncelleyebilirsiniz
-  //   }
-  // }
-
   void _initializeUserAssets() async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (userId.isNotEmpty) {
       List<Map<String, dynamic>> assets = await _getUserAssets(userId);
       setState(() {
         userAssets = assets;
-        // Burada totalAssetsValue'yi de gerektiği gibi hesaplayabilirsiniz
+        
       });
     }
   }
